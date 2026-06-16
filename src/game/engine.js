@@ -122,7 +122,9 @@ export function resolveVote(state) {
     if (count > maxVotes) { maxVotes = count; eliminatedId = Number(id); }
   });
 
-  if (!eliminatedId) return { ...state, phase: PHASES.TASKS, votes: {}, round: state.round + 1 };
+  if (!eliminatedId) {
+    return { ...state, phase: PHASES.TASKS, votes: {}, round: state.round + 1, shieldMessage: undefined };
+  }
 
   const eliminated = state.players.find(p => p.id === eliminatedId);
 
@@ -144,14 +146,14 @@ export function resolveVote(state) {
 
   // Check win conditions
   if (eliminated?.role === ROLES.SABOTEUR) {
-    return { ...state, players, phase: PHASES.RESULT, winner: 'crewmates', votes: {} };
+    return { ...state, players, phase: PHASES.RESULT, winner: 'crewmates', votes: {}, shieldMessage: undefined };
   }
 
   // Crewmate eliminated — check if saboteur now has majority
   const remaining = players.filter(p => !p.eliminated);
   const saboteurAlive = remaining.some(p => p.role === ROLES.SABOTEUR);
   if (remaining.length <= 2 && saboteurAlive) {
-    return { ...state, players, phase: PHASES.RESULT, winner: 'saboteur', votes: {} };
+    return { ...state, players, phase: PHASES.RESULT, winner: 'saboteur', votes: {}, shieldMessage: undefined };
   }
 
   // Continue game
@@ -162,6 +164,7 @@ export function resolveVote(state) {
     phase: PHASES.TASKS,
     round: state.round + 1,
     currentPlayerIndex: 0,
+    shieldMessage: undefined,
   };
 }
 
